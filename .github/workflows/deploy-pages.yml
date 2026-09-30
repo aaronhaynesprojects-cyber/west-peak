@@ -24,11 +24,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Prepare site
+      - name: Prepare site from newest West Peak zip
         run: |
           rm -rf _site
           mkdir _site
-          unzip -q "West Peak site.zip" -d _site
+          ZIP_FILE=$(ls -1t West\ Peak*.zip | head -n 1)
+          echo "Deploying: $ZIP_FILE"
+          unzip -q "$ZIP_FILE" -d _site
+
+          # If the zip contains a single top-level folder, flatten it.
+          if [ ! -f _site/index.html ]; then
+            TOP_DIR=$(find _site -mindepth 1 -maxdepth 1 -type d | head -n 1)
+            if [ -n "$TOP_DIR" ] && [ -f "$TOP_DIR/index.html" ]; then
+              shopt -s dotglob
+              mv "$TOP_DIR"/* _site/
+              rmdir "$TOP_DIR"
+            fi
+          fi
+
           touch _site/.nojekyll
           test -f _site/index.html
           test -f _site/terrain.js
