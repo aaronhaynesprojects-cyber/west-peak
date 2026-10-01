@@ -28,7 +28,8 @@ jobs:
         run: |
           rm -rf _site
           mkdir _site
-          ZIP_FILE=$(ls -1t West\ Peak*.zip | head -n 1)
+          # The highest version number wins (the old 'newest by time' rule picked an old zip: every file has the same time after a checkout)
+          ZIP_FILE=$(ls -1 West\ Peak\ v*.zip | sort -V | tail -n 1)
           echo "Deploying: $ZIP_FILE"
           unzip -q "$ZIP_FILE" -d _site
 
